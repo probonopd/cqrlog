@@ -59,7 +59,7 @@ script:
   - chmod +x AppRun
   - sudo mkdir -p /var/lib/mysql/mysql
   - sudo chown -R mysql:mysql /var/lib/mysql 
-  - sudo mysql_install_db
+  - sudo mysql_install_db --basedir /usr
   - mkdir -p var/lib/ ; sudo cp -r /var/lib/mysql-files var/lib/
   - cd -
   - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
