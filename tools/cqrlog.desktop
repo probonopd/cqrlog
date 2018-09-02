@@ -5,6 +5,5 @@ Exec=cqrlog
 Terminal=false
 Type=Application
 Icon=cqrlog
-Categories=Network;HamRadio
+Categories=Network;HamRadio;
 Keywords=Ham;Radio;Log;cqrlog;
-
