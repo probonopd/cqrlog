@@ -57,7 +57,9 @@ script:
     exec ${EXEC} $@
     EOF
   - chmod +x AppRun
-  - sudo mysqld --initialize
+  - sudo mkdir -p /var/lib/mysql/mysql
+  - sudo chown -R mysql:mysql /var/lib/mysql 
+  - sudo mysql_install_db
   - mkdir -p var/lib/ ; sudo cp -r /var/lib/mysql-files var/lib/
   - cd -
   - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
