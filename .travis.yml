@@ -11,7 +11,7 @@ before_install:
 install:
   - sudo dpkg -i fpc_3.0.4-3_amd64.deb
   - sudo dpkg -i fpc-src_3.0.4-2_amd64.deb
-  - sudo apt-get -y install libgtk2.0-dev
+  - sudo apt-get -y install libgtk2.0-dev libmysqlclient18
   - sudo dpkg -i lazarus-project_1.8.4-0_amd64.deb
   - cd /usr/share/fpcsrc/3.0.4/
   - sudo make clean all OS_TARGET=linux CPU_TARGET=x86_64 || true
@@ -32,8 +32,17 @@ script:
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
   - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
   - export VERSION=$(git rev-parse --short HEAD) # linuxdeployqt uses this for naming the file
+  - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop
+  - ./linuxdeployqt-continuous-x86_64.AppImage --appimage-extract
+  - URLS=$(sudo apt-get install --print-uris  mysql-server-core-* | grep "^'http" | cut -d "'" -f 2)
+  - ( cd appdir/ ; wget -c $URLS ; find . -name "*.deb" -exec dpkg -x {} . \; ; rm *.deb )
+  - mv appdir/usr/sbin/* appdir/usr/bin ; rm -rf appdir/usr/sbin/
+  - appdir/usr/bin/* -exec squashfs-root/usr/bin/patchelf --set-rpath '$ORIGIN/../lib' {} \;
+  - cp /usr/lib/x86_64-linux-gnu/libmysqlclient* ./appdir/usr/lib/
+  - mv ./appdir/lib/x86_64-linux-gnu/libaio.so.1.0.1 ./appdir/usr/lib/libaio.so.1
+  - find appdir/usr/lib/* -exec squashfs-root/usr/bin/patchelf --set-rpath '$ORIGIN' {} \;
   - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
-
+  
 after_success:
   - find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
   - # curl --upload-file CQRLOG*.AppImage https://transfer.sh/APPNAME-git.$(git rev-parse --short HEAD)-x86_64.AppImage
