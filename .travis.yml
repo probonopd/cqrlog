@@ -11,7 +11,7 @@ before_install:
 install:
   - sudo dpkg -i fpc_3.0.4-3_amd64.deb
   - sudo dpkg -i fpc-src_3.0.4-2_amd64.deb
-  - sudo apt-get -y install libgtk2.0-dev libmysqlclient18
+  - sudo apt-get -y install libgtk2.0-dev libmysqlclient18 libaio1
   - sudo dpkg -i lazarus-project_1.8.4-0_amd64.deb
   - cd /usr/share/fpcsrc/3.0.4/
   - sudo make clean all OS_TARGET=linux CPU_TARGET=x86_64 || true
@@ -38,7 +38,7 @@ script:
   - ( cd appdir/ ; wget -c $URLS ; find . -name "*.deb" -exec dpkg -x {} . \; ; rm *.deb )
   - mv appdir/usr/sbin/* appdir/usr/bin ; rm -rf appdir/usr/sbin/
   - find appdir/usr/bin/* -exec squashfs-root/usr/bin/patchelf --set-rpath '$ORIGIN/../lib' {} \;
-  - mkdir -p ./appdir/usr/lib/ ; cp /usr/lib/x86_64-linux-gnu/libmysqlclient* ./appdir/usr/lib/
+  - mkdir -p ./appdir/usr/lib/ ; cp /usr/lib/x86_64-linux-gnu/libmysqlclient* /lib/x86_64-linux-gnu/libaio* ./appdir/usr/lib/
   - mv ./appdir/lib/x86_64-linux-gnu/libaio.so* ./appdir/usr/lib/
   - find appdir/usr/lib/* -type f -exec squashfs-root/usr/bin/patchelf --set-rpath '$ORIGIN' {} \;
   - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
