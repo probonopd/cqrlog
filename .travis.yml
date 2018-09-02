@@ -39,8 +39,8 @@ script:
   - mv appdir/usr/sbin/* appdir/usr/bin ; rm -rf appdir/usr/sbin/
   - find appdir/usr/bin/* -exec squashfs-root/usr/bin/patchelf --set-rpath '$ORIGIN/../lib' {} \;
   - mkdir -p ./appdir/usr/lib/ ; cp /usr/lib/x86_64-linux-gnu/libmysqlclient* ./appdir/usr/lib/
-  - mv ./appdir/lib/x86_64-linux-gnu/libaio.so.1.0.1 ./appdir/usr/lib/libaio.so.1
-  - find appdir/usr/lib/* -exec squashfs-root/usr/bin/patchelf --set-rpath '$ORIGIN' {} \;
+  - mv ./appdir/lib/x86_64-linux-gnu/libaio.so* ./appdir/usr/lib/
+  - find appdir/usr/lib/* -type f -exec squashfs-root/usr/bin/patchelf --set-rpath '$ORIGIN' {} \;
   - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
   
 after_success:
