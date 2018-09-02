@@ -21,11 +21,12 @@ script:
   - cd $TRAVIS_BUILD_DIR 	  
   - make	
   - make install DESTDIR=$(readlink -f appdir) ; find appdir/
-  - cp appdir/usr/share/icons/cqrlog/128x128/cqrlog.png usr/share/icons/hicolor/128x128/apps/ # FIXME
-  - cp appdir/usr/share/icons/cqrlog/48x48/cqrlog.png usr/share/icons/hicolor/48x48/apps/ # FIXME
-  - cp appdir/usr/share/icons/cqrlog/32x32/cqrlog.png usr/share/icons/hicolor/32x32/apps/ # FIXME
-  - cp appdir/usr/share/icons/cqrlog/256x256/cqrlog.png usr/share/icons/hicolor/256x256/apps/ # FIXME
-  - cp appdir/usr/share/icons/cqrlog/64x64/cqrlog.png usr/share/icons/hicolor/64x64/apps/ # FIXME
+  - mkdir -p appdir/usr/share/icons/hicolor/{128x128,48x48,32x32,256x256,64x64}/ # FIXME; Makefile should put them there
+  - cp appdir/usr/share/icons/cqrlog/128x128/cqrlog.png appdir/usr/share/icons/hicolor/128x128/apps/ # FIXME
+  - cp appdir/usr/share/icons/cqrlog/48x48/cqrlog.png appdir/usr/share/icons/hicolor/48x48/apps/ # FIXME
+  - cp appdir/usr/share/icons/cqrlog/32x32/cqrlog.png appdir/usr/share/icons/hicolor/32x32/apps/ # FIXME
+  - cp appdir/usr/share/icons/cqrlog/256x256/cqrlog.png appdir/usr/share/icons/hicolor/256x256/apps/ # FIXME
+  - cp appdir/usr/share/icons/cqrlog/64x64/cqrlog.png appdir/usr/share/icons/hicolor/64x64/apps/ # FIXME
   - rm -rf appdir/usr/share/icons/cqrlog/ # FIXME; this is a nonstandard location
   - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
