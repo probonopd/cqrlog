@@ -41,9 +41,7 @@ script:
   - mkdir -p ./appdir/usr/lib/ ; cp /usr/lib/x86_64-linux-gnu/libmysqlclient* /lib/x86_64-linux-gnu/libaio* ./appdir/usr/lib/
   - find appdir/usr/lib/* -type f -exec squashfs-root/usr/bin/patchelf --set-rpath '$ORIGIN' {} \;
   - cd appdir/
-  - wget -q "https://raw.githubusercontent.com/mikix/deb2snap/master/src/preload.c" -O - | \
-  - sed -e 's|SNAPPY|UNION|g' | sed -e 's|SNAPP|UNION|g' | sed  -e 's|SNAP|UNION|g' | \
-  - sed -e 's|snappy|union|g' > usr/src/libunionpreload.c
+  - wget -q "https://raw.githubusercontent.com/mikix/deb2snap/master/src/preload.c" -O - | sed -e 's|SNAPPY|UNION|g' | sed -e 's|SNAPP|UNION|g' | sed  -e 's|SNAP|UNION|g' | sed -e 's|snappy|union|g' > usr/src/libunionpreload.c
   - gcc -shared -fPIC usr/src/libunionpreload.c -o libunionpreload.so -ldl -DUNION_LIBNAME=\"libunionpreload.so\"
   - strip libunionpreload.so
   - rm AppRun
