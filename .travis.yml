@@ -48,6 +48,7 @@ script:
   - strip libunionpreload.so
   - rm AppRun
   - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/bin/mysqld --bundle-non-qt-libs
+  - |
     cat > ./AppRun <<\EOF
     #!/bin/sh
     HERE="$(dirname "$(readlink -f "${0}")")"
