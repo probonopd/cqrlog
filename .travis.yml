@@ -11,7 +11,7 @@ before_install:
 install:
   - sudo dpkg -i fpc_3.0.4-3_amd64.deb
   - sudo dpkg -i fpc-src_3.0.4-2_amd64.deb
-  - sudo apt-get -y install libgtk2.0-dev libmysqlclient18 libaio1
+  - sudo apt-get -y install libgtk2.0-dev libmysqlclient18 libaio1 mysql-server
   - sudo dpkg -i lazarus-project_1.8.4-0_amd64.deb
   - cd /usr/share/fpcsrc/3.0.4/
   - sudo make clean all OS_TARGET=linux CPU_TARGET=x86_64 || true
@@ -34,19 +34,21 @@ script:
   - export VERSION=$(git rev-parse --short HEAD) # linuxdeployqt uses this for naming the file
   - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop
   - ./linuxdeployqt-continuous-x86_64.AppImage --appimage-extract
-  - URLS=$(sudo apt-get install --print-uris  mysql-server-core-5.5 | grep "^'http" | cut -d "'" -f 2)
-  - ( cd appdir/ ; wget -c $URLS ; find . -name "*.deb" -exec dpkg -x {} . \; ; rm *.deb )
-  - mv appdir/usr/sbin/* appdir/usr/bin ; rm -rf appdir/usr/sbin/
-  - find appdir/usr/bin/* -exec squashfs-root/usr/bin/patchelf --set-rpath '$ORIGIN/../lib' {} \;
-  - mkdir -p ./appdir/usr/lib/ ; cp /usr/lib/x86_64-linux-gnu/libmysqlclient* /lib/x86_64-linux-gnu/libaio* ./appdir/usr/lib/
-  - find appdir/usr/lib/* -type f -exec squashfs-root/usr/bin/patchelf --set-rpath '$ORIGIN' {} \;
+#  - URLS=$(sudo apt-get install --print-uris  mysql-server-core-5.5 | grep "^'http" | cut -d "'" -f 2)
+#  - ( cd appdir/ ; wget -c $URLS ; find . -name "*.deb" -exec dpkg -x {} . \; ; rm *.deb )
+#  - mv appdir/usr/sbin/* appdir/usr/bin ; rm -rf appdir/usr/sbin/
+#  - find appdir/usr/bin/* -exec squashfs-root/usr/bin/patchelf --set-rpath '$ORIGIN/../lib' {} \;
+#  - mkdir -p ./appdir/usr/lib/ ; cp /usr/lib/x86_64-linux-gnu/libmysqlclient* /lib/x86_64-linux-gnu/libaio* ./appdir/usr/lib/
+#  - find appdir/usr/lib/* -type f -exec squashfs-root/usr/bin/patchelf --set-rpath '$ORIGIN' {} \;
+  - cp /usr/sbin/mysqld appdir/usr/bin
+  - 
   - cd appdir/
   - mkdir -p usr/src/ etc/
   - wget -q "https://raw.githubusercontent.com/mikix/deb2snap/master/src/preload.c" -O - | sed -e 's|SNAPPY|UNION|g' | sed -e 's|SNAPP|UNION|g' | sed  -e 's|SNAP|UNION|g' | sed -e 's|snappy|union|g' > usr/src/libunionpreload.c
   - gcc -shared -fPIC usr/src/libunionpreload.c -o libunionpreload.so -ldl -DUNION_LIBNAME=\"libunionpreload.so\"
   - strip libunionpreload.so
   - rm AppRun
-  - |
+  - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/bin/mysqld --bundle-non-qt-libs
     cat > ./AppRun <<\EOF
     #!/bin/sh
     HERE="$(dirname "$(readlink -f "${0}")")"
@@ -57,11 +59,10 @@ script:
     exec ${EXEC} $@
     EOF
   - chmod +x AppRun
-  - sudo mkdir -p /var/lib/mysql/mysql
-  - sudo chown -R mysql:mysql /var/lib/mysql
-  - sudo cp /etc/mysql/my.cnf /usr/share/mysql/my-default.cnf
-  - sudo cp -r /etc/mysql etc/
-  - sudo mysql_install_db --basedir /usr
+#  - sudo cp /etc/mysql/my.cnf /usr/share/mysql/my-default.cnf
+#  - sudo cp -r /etc/mysql etc/
+  - sudo mysql_secure_installation
+  - sudo mysql_install_db
   - mkdir -p var/lib/ ; sudo cp -r /var/lib/mysql-files var/lib/
   - cd -
   - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
